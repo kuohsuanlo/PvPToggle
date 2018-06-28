@@ -8,8 +8,6 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 
-import com.github.aasmus.pvptoggle.Util;
-
 public class PvPCommand implements CommandExecutor {
 
 	@Override
@@ -19,67 +17,34 @@ public class PvPCommand implements CommandExecutor {
 			if(other == null) { //make sure the player is online
 			    sender.sendMessage(ChatColor.RED + "Could not find a player by the name " + args[1]);
 			} else { //set pvp state
-				String current = PvPToggle.instance.players.get(other.getUniqueId());
+				boolean current = PvPToggleUtil.getPlayerState(other.getUniqueId());
 				if(args[0].equals("toggle")) {
-					if(current.equalsIgnoreCase("off"))
-						Util.setPvPOn(other);
-					else if(current.equalsIgnoreCase("off"))
-						Util.setPvPOff(other);
+					PvPToggleUtil.setPlayerState(other.getUniqueId(),!current);
 				} else if(args[0].equalsIgnoreCase("on")) {
-					if(!current.equalsIgnoreCase("on"))
-						Util.setPvPOn(other);
-					else
-						sender.sendMessage(ChatColor.GREEN + args[0] + " already has pvp on!");
+					PvPToggleUtil.setPlayerState(other.getUniqueId(),true);
 				} else if(args[0].equalsIgnoreCase("off")) {
-					if(!current.equalsIgnoreCase("off"))
-						Util.setPvPOff(other);
-					else
-						sender.sendMessage(ChatColor.GREEN + args[0] + " already has pvp off!");
+					PvPToggleUtil.setPlayerState(other.getUniqueId(),false);
 				}
-				current = PvPToggle.instance.players.get(other.getUniqueId());
+				current = PvPToggleUtil.getPlayerState(other.getUniqueId());
 				sender.sendMessage(ChatColor.GREEN + other.getDisplayName() + "'s pvp state has been changed to " + current + ".");
 			}
 		} else if(sender instanceof Player) { //check if command sender is player
 			if(cmd.getName().equalsIgnoreCase("pvp")) {
 				Player p = (Player) sender;
 				if(args.length == 0) {
-					sender.sendMessage(ChatColor.GREEN + "" + ChatColor.BOLD + "Commands:");
-					sender.sendMessage(ChatColor.GREEN + "Use /pvp {toggle|on|off|status} to change/view pvp state.");
-					if(p.hasPermission("pvptoggle.others"))
-						sender.sendMessage(ChatColor.GREEN + "Use /pvp <player> to see another player's pvp state.");
-					if(p.hasPermission("pvptoggle.others.set"))
-						sender.sendMessage(ChatColor.GREEN + "Use /pvp {toggle|on|off} <player> to set another player's pvp state.");
+					boolean current = PvPToggleUtil.getPlayerState(p.getUniqueId());
+					PvPToggleUtil.setPlayerState(p.getUniqueId(),!current);
+				
 				} else if(args.length == 1) {
-					String current = PvPToggle.instance.players.get(p.getUniqueId());
+					boolean current = PvPToggleUtil.getPlayerState(p.getUniqueId());
 					if(args[0].equals("toggle")) {
-						if(current.equalsIgnoreCase("off"))
-							Util.setPvPOn(p);
-						else if(current.equalsIgnoreCase("on"))
-							Util.setPvPOff(p);
+						PvPToggleUtil.setPlayerState(p.getUniqueId(),!current);
 					} else if(args[0].equalsIgnoreCase("on")) {
-						if(!current.equalsIgnoreCase("on"))
-							Util.setPvPOn(p);
-						else
-							sender.sendMessage(ChatColor.GREEN + "You already have pvp on!");
+						PvPToggleUtil.setPlayerState(p.getUniqueId(),true);
 					} else if(args[0].equalsIgnoreCase("off")) {
-						if(!current.equalsIgnoreCase("off"))
-							Util.setPvPOff(p);
-						else
-							sender.sendMessage(ChatColor.GREEN + "You already have pvp off!");
+						PvPToggleUtil.setPlayerState(p.getUniqueId(),false);
 					} else if(args[0].equalsIgnoreCase("status")) {
 						sender.sendMessage(ChatColor.GREEN + "Your pvp set to " + current + ".");
-					} else {
-						if(sender.hasPermission("pvptoggle.others")) {
-							Player other = Bukkit.getPlayerExact(args[0]);
-							if(other == null) {
-							    sender.sendMessage(ChatColor.RED + "Could not find a player by the name " + args[0] + ".");
-							} else {
-								current = PvPToggle.instance.players.get(other.getUniqueId());
-								sender.sendMessage(ChatColor.GREEN + other.getDisplayName() + ChatColor.GREEN + "'s pvp is " + current + ".");
-							}
-						} else {
-							sender.sendMessage(ChatColor.RED + args[0] +" is an invalid parameter. {toggle|on|off|status}");
-						}
 					}
 				} else if(args.length == 2) {
 					if(sender.hasPermission("pvptoggle.others.set")) {
@@ -87,29 +52,30 @@ public class PvPCommand implements CommandExecutor {
 						if(other == null) {
 						    sender.sendMessage(ChatColor.RED + "Could not find a player by the name " + args[1]);
 						} else {
-							String current = PvPToggle.instance.players.get(other.getUniqueId());
+							boolean current = PvPToggleUtil.getPlayerState(other.getUniqueId());
 							if(args[0].equals("toggle")) {
-								if(current.equalsIgnoreCase("off"))
-									Util.setPvPOn(other);
-								else if(current.equalsIgnoreCase("off"))
-									Util.setPvPOff(other);
+								PvPToggleUtil.setPlayerState(p.getUniqueId(),!current);
 							} else if(args[0].equalsIgnoreCase("on")) {
-								if(!current.equalsIgnoreCase("on"))
-									Util.setPvPOn(other);
-								else
-									sender.sendMessage(ChatColor.GREEN + args[0] + " already has pvp on!");
+								PvPToggleUtil.setPlayerState(p.getUniqueId(),true);
 							} else if(args[0].equalsIgnoreCase("off")) {
-								if(!current.equalsIgnoreCase("off"))
-									Util.setPvPOff(other);
-								else
-									sender.sendMessage(ChatColor.GREEN + args[0] + " already has pvp off!");
+								PvPToggleUtil.setPlayerState(p.getUniqueId(),false);
 							}
-							current = PvPToggle.instance.players.get(other.getUniqueId());
+							current = PvPToggleUtil.getPlayerState(other.getUniqueId());
 							sender.sendMessage(ChatColor.GREEN + other.getDisplayName() + "'s pvp state has been changed to " + current + ".");
 						}
 					} else {
 						sender.sendMessage(ChatColor.RED + "You do not have permission to set others pvp  state.");
 					}
+				}
+				
+				boolean finalState = PvPToggleUtil.getPlayerState(p.getUniqueId());
+				if(finalState){
+					p.sendMessage(ChatColor.GREEN + "Your pvp has been enabled!");
+					
+				}
+				else{
+					p.sendMessage(ChatColor.GREEN + "Your pvp has been disabled!");
+					
 				}
 			}
 			return true;

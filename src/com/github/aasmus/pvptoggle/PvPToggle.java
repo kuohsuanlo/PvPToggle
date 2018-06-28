@@ -14,12 +14,10 @@ import com.github.aasmus.pvptoggle.listeners.PvP;
 
 public class PvPToggle extends JavaPlugin implements Listener {
 	public FileConfiguration config = getConfig();
-	public static PvPToggle instance;
-	public HashMap<UUID,String> players = new HashMap<UUID,String>();
+	public static HashMap<UUID,Boolean> players = new HashMap<UUID,Boolean>();
 	
 	@Override
 	public void onEnable() {
-		instance = this;
 		//register events
 		getServer().getPluginManager().registerEvents(this, this);
 		Bukkit.getPluginManager().registerEvents(new PlayerJoin(), this);
