@@ -13,6 +13,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.AreaEffectCloudApplyEvent;
+import org.bukkit.event.entity.EntityCombustByEntityEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.LingeringPotionSplashEvent;
 import org.bukkit.event.entity.PotionSplashEvent;
@@ -26,6 +27,32 @@ import com.github.aasmus.pvptoggle.PvPToggleUtil;
 
 public class PvP implements Listener {
 
+
+	@EventHandler(ignoreCancelled = true, priority = EventPriority.LOWEST)
+
+	public void onEntityCombustByEntityEvent(EntityCombustByEntityEvent event) {
+		if (event.getCombuster() instanceof Projectile) {
+			Projectile arrow = (Projectile) event.getCombuster();
+			if(arrow.getShooter() instanceof Player) {
+				if(event.getEntity() instanceof Player) {
+					Player damager = (Player) arrow.getShooter();
+					boolean damagerState = PvPToggleUtil.getPlayerState(damager.getUniqueId());
+					Player attacked = (Player) event.getEntity();
+					boolean attackedState = PvPToggleUtil.getPlayerState(attacked.getUniqueId());
+					
+					if(!damager.getName().equals(attacked.getName())){
+						if(damagerState==false) {
+							event.setCancelled(true);
+						}else if(attackedState==false) {
+							event.setCancelled(true);
+						}
+					}
+				}
+			}
+		} 
+	}
+	
+	
 	@EventHandler(ignoreCancelled = true, priority = EventPriority.LOWEST)
 	//fired when an entity is hit
 	public void onHit(EntityDamageByEntityEvent event) {
@@ -46,8 +73,9 @@ public class PvP implements Listener {
 					damager.sendMessage(ChatColor.RED + attacked.getDisplayName() + " has pvp disabled!");
 				}
 			}
+		} 
 		//checks if damage was done by a projectile
-		} else if (event.getDamager() instanceof Projectile) {
+		else if (event.getDamager() instanceof Projectile) {
 			Projectile arrow = (Projectile) event.getDamager();
 			if(arrow.getShooter() instanceof Player) {
 				if(event.getEntity() instanceof Player) {
@@ -67,8 +95,9 @@ public class PvP implements Listener {
 					}
 				}
 			}
+		} 
 		//checks if damage was done by a potion
-		} else if(event.getDamager() instanceof ThrownPotion) {
+		else if(event.getDamager() instanceof ThrownPotion) {
 			ThrownPotion potion = (ThrownPotion) event.getDamager();
 			if (potion.getShooter() instanceof Player && event.getEntity() instanceof Player) {
 				Player damager = (Player) potion.getShooter();
